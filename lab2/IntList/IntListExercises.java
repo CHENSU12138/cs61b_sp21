@@ -1,5 +1,7 @@
 package IntList;
 
+import net.sf.saxon.functions.ConstantFunction;
+
 public class IntListExercises {
 
     /**
@@ -10,7 +12,7 @@ public class IntListExercises {
      */
     public static void addConstant(IntList lst, int c) {
         IntList head = lst;
-        while (head.rest != null) {
+        while (head != null) {
             head.first += c;
             head = head.rest;
         }
@@ -29,8 +31,10 @@ public class IntListExercises {
             if (firstDigitEqualsLastDigit(max(p))) {
                 p.first = 0;
             }
+
             p = p.rest;
         }
+
     }
 
     /** Returns the max value in the IntList starting at L. */
@@ -51,7 +55,7 @@ public class IntListExercises {
      */
     public static boolean firstDigitEqualsLastDigit(int x) {
         int lastDigit = x % 10;
-        while (x > 10) {
+        while (x >= 10) {
             x = x / 10;
         }
         int firstDigit = x % 10;
@@ -67,6 +71,7 @@ public class IntListExercises {
      */
     public static boolean squarePrimes(IntList lst) {
         // Base Case: we have reached the end of the list
+
         if (lst == null) {
             return false;
         }
@@ -75,8 +80,9 @@ public class IntListExercises {
 
         if (currElemIsPrime) {
             lst.first *= lst.first;
-        }
 
-        return currElemIsPrime || squarePrimes(lst.rest);
+        }
+        boolean rest = squarePrimes(lst.rest);
+        return currElemIsPrime || rest;
     }
 }
