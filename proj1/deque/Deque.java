@@ -7,7 +7,7 @@ public interface Deque<T> {
 
     int size();
 
-    default public boolean isEmpty() {
+    default boolean isEmpty() {
         return size() == 0;
     }
 
@@ -18,4 +18,6 @@ public interface Deque<T> {
     T removeLast();
 
     T get(int index);
+
+    boolean equals(Object o);
 }

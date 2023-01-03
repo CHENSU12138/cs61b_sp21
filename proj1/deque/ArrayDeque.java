@@ -17,16 +17,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         last = 4;
     }
 
-    public ArrayDeque(ArrayDeque other) {
-        array = (T[]) new Object[8];
-        size = 0;
-        length = 8;
-        front = 4;
-        last = 4;
-        for (int i = 0; i < other.size(); i += 1) {
-            addLast((T) other.get(i));
-        }
-    }
+    
 
     private int minusOne(int index) {
         if (index == 0) {

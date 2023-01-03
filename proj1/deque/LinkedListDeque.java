@@ -112,7 +112,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         return true;
     }
 
-    public class Node {
+    private class Node {
         private T item;
         private Node previous;
         private Node next;
