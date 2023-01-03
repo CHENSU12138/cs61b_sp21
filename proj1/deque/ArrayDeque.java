@@ -17,7 +17,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         last = 4;
     }
 
-    
+
 
     private int minusOne(int index) {
         if (index == 0) {
@@ -26,8 +26,9 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         return index - 1;
     }
 
-    private int plusOne(int index, int length) {
-        if (index == length - 1) {
+    private int plusOne(int index, int moudle) {
+        index %= moudle;
+        if (index == moudle - 1) {
             return 0;
         }
         return index + 1;
