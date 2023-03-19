@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
@@ -71,19 +70,9 @@ class Utils {
      *  and throws IllegalArgumentException unless the directory designated by
      *  FILE also contains a directory named .gitlet. */
     static boolean restrictedDelete(File file) {
-        boolean foundGitlet = false;
-        File p = file.getAbsoluteFile();
-        while (p != null) {
-            if (join(p, ".gitlet").isDirectory()) {
-                foundGitlet = true;
-            }
-            p = p.getParentFile();
-        }
-
-        if (!foundGitlet) {
+        if (!(new File(file.getParentFile(), ".gitlet")).isDirectory()) {
             throw new IllegalArgumentException("not .gitlet working directory");
         }
-
         if (!file.isDirectory()) {
             return file.delete();
         } else {
@@ -97,32 +86,6 @@ class Utils {
      *  directory designated by FILE also contains a directory named .gitlet. */
     static boolean restrictedDelete(String file) {
         return restrictedDelete(new File(file));
-    }
-
-    /**
-     * Delete a directory and its children.
-     * Reference: https://roufid.com/how-to-delete-folder-recursively-in-java/
-     *
-     * @param file The directory to delete.
-     * @throws IOException Exception when problem occurs during deleting the directory.
-     */
-    static void deleteDir(File file) throws IOException {
-        if (file.isFile()) {
-            return;
-        }
-        for (File childFile : file.listFiles()) {
-            if (childFile.isDirectory()) {
-                deleteDir(childFile);
-            } else {
-                if (!childFile.delete()) {
-                    throw new IOException();
-                }
-            }
-        }
-
-        if (!file.delete()) {
-            throw new IOException();
-        }
     }
 
     /* READING AND WRITING FILE CONTENTS */
@@ -158,7 +121,6 @@ class Utils {
                 throw
                     new IllegalArgumentException("cannot overwrite directory");
             }
-            file.getParentFile().mkdirs();
             BufferedOutputStream str =
                 new BufferedOutputStream(Files.newOutputStream(file.toPath()));
             for (Object obj : contents) {
@@ -195,23 +157,6 @@ class Utils {
         writeContents(file, serialize(obj));
     }
 
-    /** Write content in src to dest in bytes. */
-    static void writeContentsInBytes(File src, File dest) {
-        writeContents(dest, readContents(src));
-    }
-
-    /**
-     * Write OBJ to FILE folder based on the HASHVALUE.
-     * @param file The directory to store blobs, trees, and commits.
-     * @param hashValue The hash value of OBJ.
-     * @param obj The object to store.
-     * */
-    static void writeObject(File file, String hashValue, Serializable obj) {
-        // The folder to store obj. Take the first two characters of hashValue.
-        file = join(file, Repository.getRelFileInObjectsByID(hashValue)); // The file to store obj.
-        writeContents(file, serialize(obj));
-    }
-
     /* DIRECTORIES */
 
     /** Filter out all but plain files. */
@@ -243,58 +188,22 @@ class Utils {
         return plainFilenamesIn(new File(dir));
     }
 
-    /** Returns all files besides files in .gitlet folder
-     * recursively from the specified directory. */
-    static List<File> listFiles(String directoryName) throws IOException {
-        List<File> files = new ArrayList<>();
-        listFiles(directoryName, files);
-        return files;
-    }
-
-    /**
-     * Adds to the files list all files besides files in .gitlet folder
-     * recursively from the specified directory.
-     * Reference: https://stackoverflow.com/questions/14676407/
-     * */
-    static void listFiles(String directoryName, List<File> files) throws IOException {
-        File directory = new File(directoryName);
-
-        // Get all files from a directory.
-        File[] fList = directory.listFiles();
-        if(fList != null)
-            for (File file : fList) {
-                if (file.isFile()) {
-                    file = Repository.relativeSimplePath(Repository.WORK_DIR, file);
-                    files.add(file);
-                } else if (file.isDirectory() && !file.getName().equals(".gitlet")) {
-                    listFiles(file.getAbsolutePath(), files);
-                }
-            }
-    }
-
     /* OTHER FILE UTILITIES */
 
-    /** Return the concatenation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths#get(String, String[])}
+    /** Return the concatentation of FIRST and OTHERS into a File designator,
+     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
      *  method. */
     static File join(String first, String... others) {
         return Paths.get(first, others).toFile();
     }
 
-    /** Return the concatenation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths#get(String, String[])}
+    /** Return the concatentation of FIRST and OTHERS into a File designator,
+     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
      *  method. */
     static File join(File first, String... others) {
         return Paths.get(first.getPath(), others).toFile();
     }
 
-    static File join(File first, File... others) {
-        String[] otherStrings = new String[others.length];
-        for (int i = 0; i < others.length; i++) {
-            otherStrings[i] = others[i].toString();
-        }
-        return join(first, otherStrings);
-    }
 
     /* SERIALIZATION UTILITIES */
 
@@ -326,10 +235,5 @@ class Utils {
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
-    }
-
-    static void exit(String msg, Object... args){
-        System.out.printf(msg, args);
-        System.exit(0);
     }
 }

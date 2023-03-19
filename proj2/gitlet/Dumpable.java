@@ -1,6 +1,5 @@
 package gitlet;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 /** An interface describing dumpable objects.
@@ -8,5 +7,5 @@ import java.io.Serializable;
  */
 interface Dumpable extends Serializable {
     /** Print useful information about this object on System.out. */
-    void dump() throws IOException;
+    void dump();
 }

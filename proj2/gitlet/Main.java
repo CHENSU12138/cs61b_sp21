@@ -1,116 +1,181 @@
 package gitlet;
 
-import java.io.IOException;
-import java.io.File;
+import java.sql.ResultSet;
 
-import static gitlet.Utils.exit;
-
-/** Driver class for Gitlet, a subset of the Git version-control system.
- *
+/**
+ * Driver class for Gitlet, a subset of the Git version-control system.
+ * <p>
+ * * @author abmdocrt
  */
 public class Main {
 
-    public static void validateNumArgs(String[] args, int n) {
-        if (args.length != n) {
-            exit("Incorrect operands.");
+    /**
+     * Usage: java gitlet.Main ARGS, where ARGS contains
+     * <COMMAND> <OPERAND1> <OPERAND2> ...
+     */
+    public static void main(String[] args) {
+        // TODO: what if args is empty?
+        if (args.length == 0) {
+            System.out.println("Please enter a command.");
+            System.exit(0);
+        }
+        String firstArg = args[0];
+        switch (firstArg) {
+
+            /* * init command */
+            case "init":
+                // TODO: handle the `init` command
+                validArgs(args, 1);
+
+                Repository.init();
+                break;
+
+            /* * add command */
+            case "add":
+                // TODO: handle the `add [filename]` command
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.add(args[1]);
+                break;
+            // TODO: FILL THE REST IN
+
+            /* * commit command */
+            case "commit":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.commit(args[1]);
+                break;
+
+            /* * rm command */
+            case "rm":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.rm(args[1]);
+                break;
+
+            /* * log command */
+            case "log":
+                validArgs(args, 1);
+
+                Repository.checkIfInitialized();
+
+                Repository.log();
+                break;
+
+            /* * global-log command */
+            case "global-log":
+                validArgs(args, 1);
+
+                Repository.checkIfInitialized();
+
+                Repository.global_log();
+                break;
+
+            /* * find command */
+            case "find":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.find(args[1]);
+                break;
+
+            /* * status command */
+            case "status":
+                validArgs(args, 1);
+
+                Repository.checkIfInitialized();
+
+                Repository.status();
+                break;
+
+            /* * status command */
+            case "checkout":
+
+                Repository.checkIfInitialized();
+
+                Repository repository = new Repository();
+                switch (args.length) {
+                    case 3:
+                        if (!args[1].equals("--")) {
+                            System.out.println("Incorrect operands.");
+                            System.exit(0);
+                        }
+                        /* * checkout -- [file name] */
+                        repository.checkout(args[2]);
+                        break;
+
+                    case 4:
+                        if (!args[2].equals("--")) {
+                            System.out.println("Incorrect operands.");
+                            System.exit(0);
+                        }
+                        /* * checkout [commit id] -- [file name] */
+                        repository.checkout(args[1], args[3]);
+                        break;
+
+                    case 2:
+                        /* * checkout [branch name] */
+                        repository.checkoutBranch(args[1]);
+                        break;
+
+                    default:
+                        System.out.println("Incorrect operands.");
+                        System.exit(0);
+                }
+                break;
+
+            /* * branch command */
+            case "branch":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.branch(args[1]);
+                break;
+
+            /* * rm-branch command */
+            case "rm-branch":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.rm_branch(args[1]);
+                break;
+
+            /* * reset command */
+            case "reset":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.reset(args[1]);
+                break;
+
+            /* * merge command */
+            case "merge":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+                Repository.merge(args[1]);
+                break;
+
+            default:
+                System.out.println("No command with that name exists.");
+                System.exit(0);
         }
     }
 
-    /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ... 
-     */
-    public static void main(String[] args) throws IOException {
-
-        if (args.length == 0) {
-            exit("Please enter a command.");
-        }
-
-        String firstArg = args[0];
-
-        switch (firstArg) {
-            case "init" -> {
-                validateNumArgs(args, 1);
-                InitRepository.initializeRepository();
-            }
-            case "add" -> {
-                validateNumArgs(args, 2);
-                Repository.addFile(args[1]);
-            }
-            case "commit" -> {
-                validateNumArgs(args, 2);
-                Repository.commit(args[1]);
-            }
-            case "rm" -> {
-                validateNumArgs(args, 2);
-                Repository.removeFile(args[1]);
-            }
-            case "log" -> {
-                validateNumArgs(args, 1);
-                Repository.printLog();
-            }
-            case "global-log" -> {
-                validateNumArgs(args, 1);
-                Repository.printGlobalLog();
-            }
-            case "find" -> {
-                validateNumArgs(args, 2);
-                Repository.findCommit(args[1]);
-            }
-            case "status" -> {
-                validateNumArgs(args, 1);
-                Repository.printStatus();
-            }
-            case "checkout" -> {
-                if (args.length < 2 || args.length > 4) {
-                    exit("Incorrect operands.");
-                }
-                if (args[1].equals("--") && args.length == 3) {
-                    Repository.checkoutFileToHeadCommit(args[2]);
-                } else if (args.length == 2) {
-                    Repository.checkoutBranch(args[1]);
-                } else if (args.length == 4 && args[2].equals("--")) {
-                    Repository.checkoutFileToCommit(args[3], args[1]);
-                } else {
-                    exit("Incorrect operands.");
-                }
-            }
-            case "branch" -> {
-                validateNumArgs(args, 2);
-                Repository.addBranch(args[1]);
-            }
-            case "rm-branch" -> {
-                validateNumArgs(args, 2);
-                Repository.removeBranch(args[1]);
-            }
-            case "reset" -> {
-                validateNumArgs(args, 2);
-                Repository.resetToCommit(args[1]);
-            }
-            case "merge" -> {
-                validateNumArgs(args, 2);
-                Repository.mergeBranch(args[1]);
-            }
-            case "add-remote" -> {
-                validateNumArgs(args, 3);
-                Repository.addRemote(args[1], args[2]);
-            }
-            case "rm-remote" -> {
-                validateNumArgs(args, 2);
-                Repository.removeRemote(args[1]);
-            }
-            case "push" -> {
-                validateNumArgs(args, 3);
-                Repository.pushRemote(args[1], args[2]);
-            }
-            case "fetch" -> {
-                validateNumArgs(args, 3);
-                Repository.fetchRemote(args[1], args[2]);
-            }
-            case "pull" -> {
-                validateNumArgs(args, 3);
-                Repository.pullRemote(args[1], args[2]);
-            }
-            default -> exit("No command with that name exists.");
+    private static void validArgs(String[] args, int num) {
+        if (args.length != num) {
+            System.out.println("Incorrect operands.");
+            System.exit(0);
         }
     }
 }

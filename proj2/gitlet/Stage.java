@@ -1,115 +1,87 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-/**
- * Represents a gitlet stage object.
- * A stage object consists of an {@link AddStage} object
- * and a {@link RemoveStage} object.
- * The staging area consists of change of files to be committed.
- *
- *
- */
-public class Stage implements Serializable, Dumpable {
+import static gitlet.Repository.OBJECT_DIR;
+import static gitlet.Utils.*;
 
-    /** Add staging object. */
-    private final AddStage addStage;
-    /** Remove staging object. */
-    private final RemoveStage removeStage;
+public class Stage implements Serializable {
 
-    public Stage() {
-        addStage = new AddStage();
-        removeStage = new RemoveStage();
+
+    private Map<String, String> pathToBlobID = new HashMap<>();
+
+
+    public boolean isNewBlob(Blob blob) {
+        if (!pathToBlobID.containsValue((blob.getBlobID()))) {
+            return true;
+        }
+        return false;
     }
 
-    /** Returns the add staging area object. */
-    public Map<File, String> getAddStage() {
-        return addStage.getStage();
+    public boolean isFilePathExists(String path) {
+        if (pathToBlobID.containsKey(path)) {
+            return true;
+        }
+        return false;
     }
 
-    /** Returns all files in add staging area. */
-    public Set<File> getAddStageFileSet() {
-        return addStage.getStage().keySet();
+    public void delete(Blob blob) {
+        pathToBlobID.remove(blob.getPath());
     }
 
-    /** Returns the remove staging area object. */
-    public Set<File> getRemoveStage() {
-        return removeStage.getStage();
+    public void delete(String path) {
+        pathToBlobID.remove(path);
     }
 
-    /** Add a new (file, hash value) pair into the add staging object. */
-    public void addToAddStage(File K, String V) {
-        addStage.put(K, V);
+    public void add(Blob blob) {
+        pathToBlobID.put(blob.getPath(), blob.getBlobID());
     }
 
-    /** Add a new file into the remove staging object. */
-    public void addToRemoveStage(File K) {
-        removeStage.add(K);
+    public void saveAddStage() {
+        writeObject(Repository.ADDSTAGE_FILE, this);
     }
 
-    /** Remove a (file, hash value) pair from the add staging object. */
-    public void removeFromAddStage(File K) {
-        addStage.remove(K);
+    public void saveRemoveStage() {
+        writeObject(Repository.REMOVESTAGE_FILE, this);
     }
 
-    /**
-     * Remove a file from the remove staging object.
-     *
-     * @param K file to be removed
-     * */
-    public void removeFromRemoveStage(File K) {
-        removeStage.remove(K);
+    public void clear() {
+        pathToBlobID.clear();
     }
 
-    /** Returns the hash value of a file in the add staging area. */
-    public String getHashAddStage(File K) {
-        return addStage.getHashFromFile(K);
+    public List<Blob> getBlobList() {
+        Blob blob;
+        List<Blob> blobList = new ArrayList<>();
+        for (String id : pathToBlobID.values()) {
+            blob = getBlobByID(id);
+            blobList.add(blob);
+        }
+        return blobList;
     }
 
-    /** Returns true if the add staging area contains the specified file. */
-    public boolean containsFileInAddStage(File K) {
-        return addStage.contains(K);
+    public static Blob getBlobByID(String id) {
+        File BLOB_FILE = join(OBJECT_DIR, id);
+        return readObject(BLOB_FILE, Blob.class);
     }
 
-    /**
-     * Returns {@code true} if the remove staging area contains the specified file.
-     *
-     * @return {@code true} if the remove staging area contains the specified file
-     * */
-    public boolean containsFileInRemoveStage(File K) {
-        return removeStage.contains(K);
+    public Map<String, String> getBlobMap() {
+        return this.pathToBlobID;
     }
 
-    /** Returns true if the add staging area is empty. */
-    public boolean isAddStageEmpty() {
-        return addStage.isEmpty();
+    public boolean exists(String fileName) {
+        return getBlobMap().containsKey(fileName);
     }
 
-    /**
-     * Returns {@code true} if the remove staging area is empty.
-     *
-     * @return {@code true} if the remove staging area is empty
-     * */
-    public boolean isRemoveStageEmpty() {
-        return removeStage.isEmpty();
+    public Blob getBlobByPath(String path) {
+        return getBlobByID(pathToBlobID.get(path));
     }
 
-    /**
-     * Returns {@code true} if the staging area is empty.
-     *
-     * @return {@code true} if the staging area is empty
-     * */
     public boolean isEmpty() {
-        return isAddStageEmpty() && isRemoveStageEmpty();
-    }
-
-    @Override
-    public void dump() throws IOException {
-        addStage.dump();
-        removeStage.dump();
+        return getBlobMap().size() == 0;
     }
 }

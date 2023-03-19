@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 
 /** A debugging class whose main program may be invoked as follows:
  *      java gitlet.DumpObj FILE...
@@ -32,7 +31,7 @@ public class DumpObj {
 
     /** Deserialize and apply dump to the contents of each of the files
      *  in FILES. */
-    public static void main(String... files) throws IOException {
+    public static void main(String... files) {
         for (String fileName : files) {
             Dumpable obj = Utils.readObject(new File(fileName),
                                             Dumpable.class);
