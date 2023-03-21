@@ -1,0 +1,40 @@
+### InsertInorder
+Enter # strings to insert into hashmap.ULLMap: 500000
+--Stack Overflow -- couldn't add 500000 strings.
+
+Enter # strings to insert into hashmap.MyHashMap: 500000
+class hashmap.MyHashMap: 0.63 sec
+
+Enter # strings to insert into Java's HashMap: 500000
+Java's Built-in HashMap: 0.38 sec
+
+Would you like to try more timed-tests? (y/n): n
+
+Process finished with exit code 0
+### Insert Random
+This program inserts random Strings of length L
+ Into different types of maps as <String, Integer> pairs.
+
+What would you like L to be?: 10
+
+Enter # strings to insert into hashmap.ULLMap: 500000
+--Stack Overflow -- couldn't add 500000 strings of length 10.
+
+Enter # strings to insert into your hashmap.MyHashMap: 500000
+class hashmap.MyHashMap: 0.84 sec
+
+Enter # strings to insert into Java's HashMap: 500000
+Java's Built-in HashMap: 0.49 sec
+
+### Buckets speed
+ This program inserts random Strings of length L
+ Into different types of maps as <String, Integer> pairs.
+
+What would you like L to be?: 10
+
+Enter # strings to insert into each map: 100000
+class hashmap.MyHashMapALBuckets: 0.16 sec
+class hashmap.MyHashMapLLBuckets: 0.14 sec
+class hashmap.MyHashMapTSBuckets: 0.30 sec
+class hashmap.MyHashMapHSBuckets: 0.20 sec
+class hashmap.MyHashMapPQBuckets: 0.43 sec
